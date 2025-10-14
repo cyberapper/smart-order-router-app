@@ -1,0 +1,43 @@
+# Smart Order Router - Terraform Configuration Example
+# Copy this file to terraform.tfvars and fill in your actual values
+# This single file manages both dev and prod environments via Terraform workspaces
+
+# Project Configuration
+project_id = "your-gcp-project-id"
+region     = "asia-east1"
+
+# Image Configuration
+image_registry = "asia-east1-docker.pkg.dev/your-project-id/your-repository/smart-order-router"
+image_tag_dev  = "latest"
+image_tag_prod = "latest"  # Use SHA256 digest for production: "sha256:abc123..."
+
+# Service Account
+service_account_email = "your-service-account@your-project-id.iam.gserviceaccount.com"
+
+# Service Configuration (shared across environments)
+container_port    = 8080
+cpu               = "1000m"
+memory            = "1Gi"
+timeout_seconds   = 300
+health_check_path = "/api/health"
+
+# Development Environment Configuration
+dev_min_instances         = 0      # Scales to zero
+dev_max_instances         = 5
+dev_ingress               = "INGRESS_TRAFFIC_ALL"  # Public access
+dev_allow_unauthenticated = true   # No authentication required
+
+# Production Environment Configuration
+prod_min_instances         = 1     # Always running
+prod_max_instances         = 20
+prod_ingress               = "INGRESS_TRAFFIC_INTERNAL_ONLY"  # Internal only
+prod_allow_unauthenticated = false  # Authentication required
+prod_authorized_members = [
+  # Add authorized service accounts or users for production
+  # "serviceAccount:your-service@your-project.iam.gserviceaccount.com",
+  # "user:admin@example.com"
+]
+
+# Execution Environment
+execution_environment = "gen2"
+

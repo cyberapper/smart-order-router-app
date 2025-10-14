@@ -1,0 +1,8 @@
+# Terraform state and cache
+.terraform/
+.terraform.lock.hcl
+
+# Environment-specific configuration (contains sensitive data)
+terraform.tfvars
+*.auto.tfvars
+
