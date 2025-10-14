@@ -2,7 +2,7 @@
  * @Author: leo leean1687@gmail.com
  * @Date: 2025-10-09 17:51:12
  * @LastEditors: leo leean1687@gmail.com
- * @LastEditTime: 2025-10-14 13:51:28
+ * @LastEditTime: 2025-10-14 15:50:42
  * @FilePath: /app/src/pages/api/smartrouter/index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,9 +11,10 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getRoute } from './quote'
 export type ParamsOptions = {
   chainId: number
-  amountIn: number
+  amount: number
   walletAddress: string
   slippage: number
+  tradeType: 'exactIn' | 'exactOut'
   token0: {
     address: string
     decimals: number
@@ -55,15 +56,18 @@ const validateParams = async(req: NextApiRequest, method:'get' | 'post'): Promis
     if(!paramsObj) {
       throw new Error('params cannot be empty')
     }
-    if(!paramsObj.chainId || !paramsObj.amountIn || !paramsObj.token0 || !paramsObj.token1 || !paramsObj.walletAddress || !paramsObj.slippage) {
+    if(!paramsObj.chainId || !paramsObj.amount || !paramsObj.token0 || !paramsObj.token1 || !paramsObj.walletAddress || !paramsObj.slippage || !paramsObj.tradeType) {
       throw new Error('params[chainId,amountIn,token0,token1,walletAddress,slippage] cannot be empty')
     }
     if(!paramsObj.token0.address || !paramsObj.token0.decimals || !paramsObj.token1.address || !paramsObj.token1.decimals) {
       throw new Error('token(addrss,decimals) cannot be empty')
     }
-    const { chainId, amountIn, walletAddress, slippage, token0, token1 } = paramsObj
+    if(paramsObj.tradeType != 'exactIn' && paramsObj.tradeType != 'exactOut') {
+      throw new Error('tradeType type fix (exactIn | exactOut)')
+    }
+    const { chainId, amount, walletAddress, slippage, token0, token1, tradeType } = paramsObj
     return {
-      chainId, amountIn, walletAddress, slippage, token0, token1
+      chainId, amount, walletAddress, slippage, token0, token1, tradeType
     }
   } catch (error) {
     throw error
