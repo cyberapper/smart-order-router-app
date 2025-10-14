@@ -22,7 +22,7 @@ const getProvider = (chainid: keyof typeof ENDPOINTS_BASE) => {
 
 export const getRoute = async (params: ParamsOptions) => {
   const chainId = Number(params.chainId)
-  const { token0, token1, walletAddress, slippage, amountIn } = params
+  const { token0, token1, walletAddress, slippage, amount, tradeType } = params
   const router = new AlphaRouter({
     chainId,
     provider: getProvider(chainId as keyof typeof ENDPOINTS_BASE),
@@ -47,13 +47,16 @@ export const getRoute = async (params: ParamsOptions) => {
     deadline: Math.floor(Date.now() / 1000 + 1800),
     type: SwapType.SWAP_ROUTER_02,
   }
+  const TOKENA = tradeType == 'exactIn' ? TOKEN_IN : TOKEN_OUT
+  const TOKENB = tradeType == 'exactIn' ? TOKEN_OUT : TOKEN_IN
+  const TRADE_TYPE = tradeType == 'exactIn' ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT
   const route = await router.route(
     CurrencyAmount.fromRawAmount(
-      TOKEN_IN, //入
-      ethers.utils.parseUnits(String(amountIn), TOKEN_IN.decimals).toString()
+      TOKENA,
+      ethers.utils.parseUnits(String(amount), TOKENA.decimals).toString()
     ),
-    TOKEN_OUT, //出
-    TradeType.EXACT_INPUT,
+    TOKENB,
+    TRADE_TYPE,
     options
   );
   return route
