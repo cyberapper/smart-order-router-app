@@ -4,7 +4,7 @@ This guide explains how to set up the required secrets for the Smart Order Route
 
 ## Required Secrets
 
-### INFURA_API_KEY
+### NEXT_PUBLIC_INFURA_API_KEY
 
 The Smart Order Router requires an Infura API key to access blockchain data via RPC endpoints across multiple chains (Ethereum, Polygon, Base, Optimism, Arbitrum, etc.).
 
@@ -19,7 +19,7 @@ If the secret doesn't already exist, create it:
 PROJECT_ID="366919210753"  # or your project ID
 
 # Create the secret with your Infura API key
-echo -n "your-infura-api-key-here" | gcloud secrets create SMART_ORDER_ROUTER_INFURA_API_KEY \
+echo -n "your-infura-api-key-here" | gcloud secrets create SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID \
   --replication-policy="automatic" \
   --data-file=-
@@ -29,11 +29,11 @@ echo -n "your-infura-api-key-here" | gcloud secrets create SMART_ORDER_ROUTER_IN
 
 ```bash
 # List secret versions
-gcloud secrets versions list SMART_ORDER_ROUTER_INFURA_API_KEY \
+gcloud secrets versions list SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID
 
 # Verify secret exists
-gcloud secrets describe SMART_ORDER_ROUTER_INFURA_API_KEY \
+gcloud secrets describe SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID
 ```
 
@@ -46,7 +46,7 @@ Your Cloud Run service needs permission to access the secret:
 SERVICE_ACCOUNT="your-service-account@your-project.iam.gserviceaccount.com"
 
 # Grant secret accessor role
-gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_INFURA_API_KEY \
+gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID \
   --member="serviceAccount:$SERVICE_ACCOUNT" \
   --role="roles/secretmanager.secretAccessor"
@@ -56,7 +56,7 @@ gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_INFURA_API_KEY \
 
 ```bash
 # Check IAM policy for the secret
-gcloud secrets get-iam-policy SMART_ORDER_ROUTER_INFURA_API_KEY \
+gcloud secrets get-iam-policy SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID
 ```
 
@@ -68,7 +68,7 @@ If you need to update the Infura API key:
 
 ```bash
 # Add a new version of the secret
-echo -n "new-infura-api-key-here" | gcloud secrets versions add SMART_ORDER_ROUTER_INFURA_API_KEY \
+echo -n "new-infura-api-key-here" | gcloud secrets versions add SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID \
   --data-file=-
 ```
@@ -79,15 +79,17 @@ The Cloud Run service will automatically use the latest version (or the version 
 
 The secret is already configured in the example tfvars files:
 
-**terraform.tfvars.dev.example** and **terraform.tfvars.prod.example**:
+**main.tf**:
 ```hcl
-secret_env_vars = [
-  {
-    name    = "INFURA_API_KEY"
-    secret  = "SMART_ORDER_ROUTER_INFURA_API_KEY"
-    version = "latest"
+env {
+  name = "NEXT_PUBLIC_INFURA_API_KEY"
+  value_source {
+    secret_key_ref {
+      secret  = "SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY"
+      version = "latest"
+    }
   }
-]
+}
 ```
 
 ## Troubleshooting
@@ -98,7 +100,7 @@ secret_env_vars = [
 
 **Solution**: 
 ```bash
-gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_INFURA_API_KEY \
+gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY \
   --project=$PROJECT_ID \
   --member="serviceAccount:YOUR_SERVICE_ACCOUNT" \
   --role="roles/secretmanager.secretAccessor"
@@ -118,8 +120,8 @@ gcloud secrets add-iam-policy-binding SMART_ORDER_ROUTER_INFURA_API_KEY \
 3. Secret name mismatch in Terraform config
 
 **Solution**: 
-1. Verify secret exists: `gcloud secrets describe SMART_ORDER_ROUTER_INFURA_API_KEY --project=$PROJECT_ID`
-2. Check IAM permissions: `gcloud secrets get-iam-policy SMART_ORDER_ROUTER_INFURA_API_KEY --project=$PROJECT_ID`
+1. Verify secret exists: `gcloud secrets describe SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY --project=$PROJECT_ID`
+2. Check IAM permissions: `gcloud secrets get-iam-policy SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY --project=$PROJECT_ID`
 3. Verify Terraform config matches secret name exactly
 
 ## Getting an Infura API Key

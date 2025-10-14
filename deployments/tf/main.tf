@@ -64,10 +64,10 @@ resource "google_cloud_run_v2_service" "smart_order_router" {
 
       # Secret environment variables from Secret Manager
       env {
-        name = "INFURA_API_KEY"
+        name = "NEXT_PUBLIC_INFURA_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = "SMART_ORDER_ROUTER_INFURA_API_KEY"
+            secret  = "SMART_ORDER_ROUTER_NEXT_PUBLIC_INFURA_API_KEY"
             version = "latest"
           }
         }
