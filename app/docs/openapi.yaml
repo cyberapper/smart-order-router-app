@@ -1,0 +1,331 @@
+openapi: 3.0.3
+info:
+  title: Smart Order Router API
+  description: |
+    Backend service for the Uniswap Smart Order Router application.
+    This API provides optimal swap routes across multiple Uniswap protocols (V2, V3, V4).
+  version: 0.1.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://production-url/api
+    description: Production server
+
+tags:
+  - name: health
+    description: Health check endpoints
+  - name: smartrouter
+    description: Smart order router endpoints for finding optimal swap routes
+
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health check endpoint
+      description: Returns the health status of the API service
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                timestamp: "2025-10-14T12:00:00.000Z"
+                service: smart-order-router-api
+                version: 0.1.0
+        "405":
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /smartrouter:
+    get:
+      tags:
+        - smartrouter
+      summary: Get optimal swap route (GET method)
+      description: |
+        Calculates the optimal swap route for a token swap using Uniswap's Smart Order Router.
+        Supports multiple chains and considers routes across V2, V3, and V4 protocols.
+      operationId: getSmartRouteGET
+      parameters:
+        - name: chainId
+          in: query
+          required: true
+          description: Chain ID (1=Ethereum, 137=Polygon, 8453=Base, 10=Optimism, 42161=Arbitrum, 43114=Avalanche, 56=BSC, 130=Unichain)
+          schema:
+            type: integer
+            enum: [1, 137, 8453, 10, 42161, 43114, 56, 130]
+        - name: amountIn
+          in: query
+          required: true
+          description: Amount of input token to swap (in token's decimal units)
+          schema:
+            type: number
+        - name: walletAddress
+          in: query
+          required: true
+          description: Wallet address that will receive the output tokens
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+        - name: slippage
+          in: query
+          required: true
+          description: Slippage tolerance in basis points (e.g., 50 = 0.5%)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+        - name: token0
+          in: query
+          required: true
+          description: Input token information (JSON string)
+          schema:
+            type: string
+        - name: token1
+          in: query
+          required: true
+          description: Output token information (JSON string)
+          schema:
+            type: string
+        - name: debug
+          in: query
+          required: false
+          description: Enable debug mode
+          schema:
+            type: string
+            enum: ["true", "false"]
+      responses:
+        "200":
+          description: Successful route calculation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmartRouterSuccessResponse"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - smartrouter
+      summary: Get optimal swap route (POST method)
+      description: |
+        Calculates the optimal swap route for a token swap using Uniswap's Smart Order Router.
+        Supports multiple chains and considers routes across V2, V3, and V4 protocols.
+      operationId: getSmartRoutePOST
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SmartRouterRequest"
+            example:
+              chainId: 1
+              amountIn: 1.5
+              walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+              slippage: 50
+              token0:
+                address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+                decimals: 18
+                symbol: "WETH"
+                name: "Wrapped Ether"
+              token1:
+                address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+                decimals: 6
+                symbol: "USDC"
+                name: "USD Coin"
+      responses:
+        "200":
+          description: Successful route calculation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmartRouterSuccessResponse"
+        "204":
+          description: No content (OPTIONS preflight)
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    options:
+      tags:
+        - smartrouter
+      summary: CORS preflight
+      description: Handles CORS preflight requests
+      operationId: smartRouterOptions
+      responses:
+        "204":
+          description: No content
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - service
+        - version
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: Health status of the service
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the health check
+        service:
+          type: string
+          description: Service name
+        version:
+          type: string
+          description: Service version
+
+    TokenInfo:
+      type: object
+      required:
+        - address
+        - decimals
+      properties:
+        address:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Token contract address
+        decimals:
+          type: integer
+          minimum: 0
+          maximum: 18
+          description: Token decimals
+        symbol:
+          type: string
+          description: Token symbol (e.g., WETH, USDC)
+        name:
+          type: string
+          description: Token name (e.g., Wrapped Ether)
+
+    SmartRouterRequest:
+      type: object
+      required:
+        - chainId
+        - amountIn
+        - walletAddress
+        - slippage
+        - token0
+        - token1
+      properties:
+        chainId:
+          type: integer
+          enum: [1, 137, 8453, 10, 42161, 43114, 56, 130]
+          description: Chain ID
+        amountIn:
+          type: number
+          minimum: 0
+          description: Amount of input token to swap
+        walletAddress:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Recipient wallet address
+        slippage:
+          type: integer
+          minimum: 1
+          maximum: 10000
+          description: Slippage tolerance in basis points
+        token0:
+          $ref: "#/components/schemas/TokenInfo"
+        token1:
+          $ref: "#/components/schemas/TokenInfo"
+
+    SmartRouterSuccessResponse:
+      type: object
+      required:
+        - code
+        - data
+        - message
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          type: object
+          description: Route data from Uniswap Smart Order Router
+          nullable: true
+          properties:
+            quote:
+              type: string
+              description: Expected output amount
+            quoteGasAdjusted:
+              type: string
+              description: Output amount adjusted for gas costs
+            gasEstimate:
+              type: string
+              description: Estimated gas units
+            gasUseEstimate:
+              type: string
+              description: Estimated gas cost in native token
+            methodParameters:
+              type: object
+              description: Transaction parameters for executing the swap
+            route:
+              type: array
+              description: Array of routes found
+              items:
+                type: object
+
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        error:
+          type: string
+          description: Detailed error stack trace (only in development mode)

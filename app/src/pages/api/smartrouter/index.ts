@@ -1,12 +1,3 @@
-/*
- * @Author: leo leean1687@gmail.com
- * @Date: 2025-10-09 17:51:12
- * @LastEditors: leo leean1687@gmail.com
- * @LastEditTime: 2025-10-14 15:50:42
- * @FilePath: /app/src/pages/api/smartrouter/index.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
-
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getRoute } from './quote'
 export type ParamsOptions = {
@@ -50,16 +41,16 @@ export const handleError = (res: NextApiResponse, error: unknown) => {
   const message = typeof error === 'string' ? error : 'Server internal error'
   res.status(500).json({ code: 500, message })
 }
-const validateParams = async(req: NextApiRequest, method:'get' | 'post'): Promise<ParamsOptions> => {
+const validateParams = async (req: NextApiRequest, method: 'get' | 'post'): Promise<ParamsOptions> => {
   try {
     const paramsObj: any = method === 'get' ? req.query : (req.body ?? {})
-    if(!paramsObj) {
+    if (!paramsObj) {
       throw new Error('params cannot be empty')
     }
     if(!paramsObj.chainId || !paramsObj.amount || !paramsObj.token0 || !paramsObj.token1 || !paramsObj.walletAddress || !paramsObj.slippage || !paramsObj.tradeType) {
       throw new Error('params[chainId,amountIn,token0,token1,walletAddress,slippage] cannot be empty')
     }
-    if(!paramsObj.token0.address || !paramsObj.token0.decimals || !paramsObj.token1.address || !paramsObj.token1.decimals) {
+    if (!paramsObj.token0.address || !paramsObj.token0.decimals || !paramsObj.token1.address || !paramsObj.token1.decimals) {
       throw new Error('token(addrss,decimals) cannot be empty')
     }
     if(paramsObj.tradeType != 'exactIn' && paramsObj.tradeType != 'exactOut') {
@@ -72,7 +63,7 @@ const validateParams = async(req: NextApiRequest, method:'get' | 'post'): Promis
   } catch (error) {
     throw error
   }
-  
+
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

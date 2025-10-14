@@ -1,11 +1,3 @@
-/*
- * @Author: leo leean1687@gmail.com
- * @Date: 2025-10-09 17:59:41
- * @LastEditors: leo leean1687@gmail.com
- * @LastEditTime: 2025-10-14 15:48:46
- * @FilePath: /app/src/pages/api/smartrouter/quote.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- */
 import { ethers } from 'ethers'
 import { AlphaRouter, SwapOptionsSwapRouter02, SwapType } from '@uniswap/smart-order-router'
 import { Percent, Token, CurrencyAmount } from '@uniswap/sdk-core'
@@ -14,21 +6,21 @@ import {
 } from "@uniswap/sdk";
 import type { ParamsOptions } from './index'
 const ENDPOINTS_BASE = {
-  1:`https://mainnet.infura.io/v3/`,
-  137:`https://polygon-mainnet.infura.io/v3/`,
-  8453:`https://base-mainnet.infura.io/v3/`,
-  10:`https://optimism-mainnet.infura.io/v3/`,
-  42161:`https://arbitrum-mainnet.infura.io/v3/`,
-  43114:`https://avalanche-mainnet.infura.io/v3/`,
-  56:`https://bsc-mainnet.infura.io/v3/`,
-  130:`https://unichain-mainnet.infura.io/v3/`
+  1: `https://mainnet.infura.io/v3/`,
+  137: `https://polygon-mainnet.infura.io/v3/`,
+  8453: `https://base-mainnet.infura.io/v3/`,
+  10: `https://optimism-mainnet.infura.io/v3/`,
+  42161: `https://arbitrum-mainnet.infura.io/v3/`,
+  43114: `https://avalanche-mainnet.infura.io/v3/`,
+  56: `https://bsc-mainnet.infura.io/v3/`,
+  130: `https://unichain-mainnet.infura.io/v3/`
 }
-const getProvider = (chainid: keyof typeof ENDPOINTS_BASE ) => {
+const getProvider = (chainid: keyof typeof ENDPOINTS_BASE) => {
   const provider = new ethers.providers.JsonRpcProvider(`${ENDPOINTS_BASE[chainid]}${process.env.NEXT_PUBLIC_INFURA_API_KEY!}`)
   return provider
 }
 
-export const getRoute = async(params:ParamsOptions) => {
+export const getRoute = async (params: ParamsOptions) => {
   const chainId = Number(params.chainId)
   const { token0, token1, walletAddress, slippage, amount, tradeType } = params
   const router = new AlphaRouter({

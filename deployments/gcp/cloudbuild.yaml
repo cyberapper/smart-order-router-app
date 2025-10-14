@@ -1,0 +1,7 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    script: |
+      docker build -t asia-east1-docker.pkg.dev/hawkeye-459710/hawkeye/smart-order-router .
+    automapSubstitutions: true
+images:
+  - "asia-east1-docker.pkg.dev/hawkeye-459710/hawkeye/smart-order-router"
