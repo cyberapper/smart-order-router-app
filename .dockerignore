@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+DEPLOYMENT.md
+*.md
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Tests
+test/
+coverage/
+.nyc_output/
+
+# Build artifacts (will be rebuilt in Docker)
+build/
+dist/
+.next/
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# CI/CD
+.github/
+.circleci/
+
+# Deployment
+deployments/
+examples/
+
+# Misc
+*.bak
+*.tmp
+.DS_Store
+cache/
+types/
+.yalc
+yalc.lock
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
