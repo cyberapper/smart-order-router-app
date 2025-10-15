@@ -1,3 +1,11 @@
+/*
+ * @Author: leo leean1687@gmail.com
+ * @Date: 2025-10-09 17:59:41
+ * @LastEditors: leo leean1687@gmail.com
+ * @LastEditTime: 2025-10-15 15:12:06
+ * @FilePath: /app/src/pages/api/smartrouter/quote.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { ethers } from 'ethers'
 import { AlphaRouter, SwapOptionsSwapRouter02, SwapType } from '@uniswap/smart-order-router'
 import { Percent, Token, CurrencyAmount } from '@uniswap/sdk-core'
@@ -22,7 +30,7 @@ const getProvider = (chainid: keyof typeof ENDPOINTS_BASE) => {
 
 export const getRoute = async (params: ParamsOptions) => {
   const chainId = Number(params.chainId)
-  const { token0, token1, walletAddress, slippage, amount, tradeType } = params
+  const { token0, token1, walletAddress, slippage, amount, tradeType, deadline } = params
   const router = new AlphaRouter({
     chainId,
     provider: getProvider(chainId as keyof typeof ENDPOINTS_BASE),
@@ -44,7 +52,7 @@ export const getRoute = async (params: ParamsOptions) => {
   const options: SwapOptionsSwapRouter02 = {
     recipient: walletAddress,
     slippageTolerance: new Percent(slippage, 10_000),
-    deadline: Math.floor(Date.now() / 1000 + 1800),
+    deadline: Math.floor(Date.now() / 1000 + (deadline || 1800)),
     type: SwapType.SWAP_ROUTER_02,
   }
   const TOKENA = tradeType == 'exactIn' ? TOKEN_IN : TOKEN_OUT
