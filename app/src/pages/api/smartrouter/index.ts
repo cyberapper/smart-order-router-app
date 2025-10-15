@@ -5,6 +5,7 @@ export type ParamsOptions = {
   amount: number
   walletAddress: string
   slippage: number
+  deadline: number
   tradeType: 'exactIn' | 'exactOut'
   token0: {
     address: string
@@ -56,9 +57,9 @@ const validateParams = async (req: NextApiRequest, method: 'get' | 'post'): Prom
     if(paramsObj.tradeType != 'exactIn' && paramsObj.tradeType != 'exactOut') {
       throw new Error('tradeType type fix (exactIn | exactOut)')
     }
-    const { chainId, amount, walletAddress, slippage, token0, token1, tradeType } = paramsObj
+    const { chainId, amount, walletAddress, slippage, token0, token1, tradeType, deadline } = paramsObj
     return {
-      chainId, amount, walletAddress, slippage, token0, token1, tradeType
+      chainId, amount, walletAddress, slippage, token0, token1, tradeType, deadline
     }
   } catch (error) {
     throw error
