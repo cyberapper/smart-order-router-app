@@ -59,5 +59,10 @@ export const getRoute = async (params: ParamsOptions) => {
     TRADE_TYPE,
     options
   );
-  return route
+  return {
+    route,
+    params: {
+      token0, token1, walletAddress, slippage, amount, tradeType
+    }
+  }
 }
