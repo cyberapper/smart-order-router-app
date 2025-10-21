@@ -1,9 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { entrance } from './quote'
+import { generateUniversalRouterTx } from './generateTxParams'
+import { Token } from '@uniswap/sdk-core'
+export type QuoteData = {
+  amountIn: number;
+  tokenIn: Token | null;
+  tokenOut: Token | null;
+  rates: number[];
+  amountOut: number;
+  route: any
+}
+
 export type ParamsOptions = {
-  chainId: number
+  quoteData: QuoteData
   amount: number
-  walletAddress: string
   slippage: number
   deadline: number
   tradeType: 'exactIn' | 'exactOut'
@@ -48,8 +57,8 @@ const validateParams = async (req: NextApiRequest, method: 'get' | 'post'): Prom
     if (!paramsObj) {
       throw new Error('params cannot be empty')
     }
-    if(!paramsObj.chainId || !paramsObj.amount || !paramsObj.token0 || !paramsObj.token1 || !paramsObj.walletAddress || !paramsObj.slippage || !paramsObj.tradeType) {
-      throw new Error('params[chainId,amount,token0,token1,walletAddress,slippage,deadline,tradeType] cannot be empty')
+    if(!paramsObj.quoteData || !paramsObj.amount || !paramsObj.token0 || !paramsObj.token1 || !paramsObj.deadline || !paramsObj.slippage || !paramsObj.tradeType) {
+      throw new Error('params[quoteData,amount,token0,token1,deadline,slippage,tradeType] cannot be empty')
     }
     if (!paramsObj.token0.address || !paramsObj.token0.decimals || !paramsObj.token1.address || !paramsObj.token1.decimals) {
       throw new Error('token(addrss,decimals) cannot be empty')
@@ -57,9 +66,9 @@ const validateParams = async (req: NextApiRequest, method: 'get' | 'post'): Prom
     if(paramsObj.tradeType != 'exactIn' && paramsObj.tradeType != 'exactOut') {
       throw new Error('tradeType type fix (exactIn | exactOut)')
     }
-    const { chainId, amount, walletAddress, slippage, token0, token1, tradeType, deadline } = paramsObj
+    const { quoteData, amount, slippage, token0, token1, tradeType, deadline } = paramsObj
     return {
-      chainId, amount, walletAddress, slippage, token0, token1, tradeType, deadline
+      quoteData, amount, slippage, token0, token1, tradeType, deadline
     }
   } catch (error) {
     throw error
@@ -96,8 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const params = await validateParams(req, method)
-    // const data = await getRoute(params)
-    const data = await entrance(params)
+    const data = await generateUniversalRouterTx(params)
     res.status(200).json({ code: 200, data, message: 'success' })
   } catch (error) {
     handleError(res, error)
